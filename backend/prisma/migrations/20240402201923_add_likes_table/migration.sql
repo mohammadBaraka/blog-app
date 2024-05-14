@@ -1,0 +1,11 @@
+-- CreateTable
+CREATE TABLE "Likes" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "count" INTEGER NOT NULL,
+    "usersId" TEXT NOT NULL,
+    "postId" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Likes_usersId_fkey" FOREIGN KEY ("usersId") REFERENCES "Users" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Likes_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
