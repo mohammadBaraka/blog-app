@@ -9,6 +9,8 @@ import { useGetAllCategoriesQuery } from "@/app/lib/features/category";
 import { useCreateArticleMutation } from "@/app/lib/features/post";
 import { useSendTokenQuery } from "@/app/lib/features/auth";
 import { msgSuccess, msgError } from "@/app/utils/msg";
+import { redirect } from "next/navigation";
+import { Loader } from "@/app/components/Loader/Loader";
 const QuillEditor = dynamic(() => import("react-quill"), { ssr: false });
 
 export default function write() {
@@ -23,6 +25,10 @@ export default function write() {
     isLoading: loadingToken,
     isSuccess: succesToken,
   } = useSendTokenQuery();
+  React.useLayoutEffect(() => {
+    const isAuth = succesToken;
+    if (!isAuth) return redirect("/auth/login");
+  }, []);
   const { register, handleSubmit, setValue, watch } = useForm();
   console.log(succesToken);
   React.useEffect(() => {
@@ -34,7 +40,6 @@ export default function write() {
   const editorContent = watch("content");
 
   const onSubmit = async (data) => {
-    data.content = plainTextContent;
     await createArticle(data).then((res) =>
       console.log(
         res?.error?.status > 201
@@ -45,64 +50,67 @@ export default function write() {
   };
 
   return (
-    <main>
-      <div className="w-[95%] h-full mx-auto flex items-center justify-center">
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-10 flex gap-8">
-          <div className=" w-[70vw]">
-            <Input
-              size="lg"
-              variant="outlined"
-              color="blue-gray"
-              type="text"
-              label="Title"
-              {...register("title")}
-            />
-            <QuillEditor
-              modules={quillModules}
-              formats={quillFormats}
-              value={editorContent}
-              onChange={onEditorStateChange}
-              className="h-[100%] my-4 bg-white"
-            />
-          </div>
-          <div className="w-[15vw] h-[100%] border border-blue-gray-300 p-2 rounded-lg">
-            <h3 className="text-lg text-teal-500 text-center font-bold">
-              Categories
-            </h3>
-            <div className="flex flex-col gap-2 mt-4">
-              {categories?.map((category) => {
-                return (
-                  <div key={category?.id}>
-                    <Radio
-                      color="teal"
-                      value={category?.id}
-                      name={category?.id}
-                      label={category?.name}
-                      {...register("categoryId")}
-                    />
-                  </div>
-                );
-              })}
-
-              <Button
-                color="teal"
-                type="submit"
-                loading={loadingArticle ? true : false}
-              >
-                Publish
-              </Button>
+    <>
+      {isLoadinCategories || loadingToken || loadingArticle ? <Loader /> : null}
+      <main>
+        <div className="w-[95%] h-full mx-auto flex items-center justify-center">
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-10 flex gap-8">
+            <div className=" w-[70vw]">
+              <Input
+                size="lg"
+                variant="outlined"
+                color="blue-gray"
+                type="text"
+                label="Title"
+                {...register("title")}
+              />
+              <QuillEditor
+                modules={quillModules}
+                formats={quillFormats}
+                value={editorContent}
+                onChange={onEditorStateChange}
+                className="h-[100%] my-4 bg-white"
+              />
             </div>
-            <Input
-              autoFocus
-              readOnly
-              defaultValue={userToken?.id}
-              variant="static"
-              type="text"
-              {...register("userId")}
-            />
-          </div>
-        </form>
-      </div>
-    </main>
+            <div className="w-[15vw] h-[100%] border border-blue-gray-300 p-2 rounded-lg">
+              <h3 className="text-lg text-teal-500 text-center font-bold">
+                Categories
+              </h3>
+              <div className="flex flex-col gap-2 mt-4">
+                {categories?.map((category) => {
+                  return (
+                    <div key={category?.id}>
+                      <Radio
+                        color="teal"
+                        value={category?.id}
+                        name={category?.id}
+                        label={category?.name}
+                        {...register("categoryId")}
+                      />
+                    </div>
+                  );
+                })}
+
+                <Button
+                  color="teal"
+                  type="submit"
+                  loading={loadingArticle ? true : false}
+                >
+                  Publish
+                </Button>
+              </div>
+              <Input
+                autoFocus
+                readOnly
+                defaultValue={userToken?.id}
+                variant="static"
+                type="text"
+                {...register("userId")}
+              />
+            </div>
+          </form>
+        </div>
+      </main>
+    </>
   );
 }

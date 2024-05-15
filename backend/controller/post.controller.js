@@ -7,8 +7,6 @@ export const getAllPosts = async (req, res) => {
     const allPosts = await prisma.post.findMany({
       include: { user: true, Likes: true, Comment: true },
       orderBy: { createdAt: "desc" },
-      take: 5,
-      skip: 0,
     });
     if (!allPosts.length)
       return res.status(404).json({
