@@ -5,9 +5,15 @@ import { statusMessage } from "../utils/status.js";
 export const getAllPosts = async (req, res) => {
   try {
     const allPosts = await prisma.post.findMany({
-      include: { user: true, Likes: true, Comment: true },
+      include: {
+        user: true,
+        Category: true,
+        Likes: true,
+        Comment: { include: { user: true } },
+      },
       orderBy: { createdAt: "desc" },
     });
+
     if (!allPosts.length)
       return res.status(404).json({
         status: statusMessage.FAILD,
@@ -26,13 +32,47 @@ export const getAllPosts = async (req, res) => {
     });
   }
 };
-
+// get posts have same category
+export const getPostsByCategoryId = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const posts = await prisma.post.findMany({
+      where: { categoryId: id },
+      include: {
+        user: true,
+        Category: true,
+        Likes: true,
+        Comment: { include: { user: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    if (!posts.length)
+      return res.status(404).json({
+        status: statusMessage.FAILD,
+        message: "No Posts Founded!",
+      });
+    const response = {
+      status: statusMessage.SUCCESS,
+      data: posts,
+    };
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      status: statusMessage.SERVER_ERROR,
+      message: error?.message,
+    });
+  }
+};
 export const getPostById = async (req, res) => {
   const { id } = req.params;
   try {
     const post = await prisma.post.findUnique({
       where: { id },
-      include: { user: true, Likes: true, Comment: true },
+      include: {
+        user: true,
+        Likes: true,
+        Comment: { include: { user: true } },
+      },
     });
     if (!post)
       return res.status(400).json({

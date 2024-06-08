@@ -4,16 +4,22 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const posts = createApi({
   reducerPath: "posts",
   baseQuery: fetchBaseQuery({ baseUrl: baseUrl }),
-  tagTypes: ["posts"],
+  tagTypes: ["post"],
 
   endpoints: (builder) => ({
     getAllPosts: builder.query({
       query: () => "/posts",
-      providesTags: ["posts"],
+      providesTags: ["post"],
     }),
     getPostById: builder.query({
       query: (id) => ({
         url: `/posts/${id}`,
+        method: "GET",
+      }),
+    }),
+    getPostsByCategoryId: builder.query({
+      query: (id) => ({
+        url: `/posts/category/${id}`,
         method: "GET",
       }),
     }),
@@ -23,6 +29,15 @@ export const posts = createApi({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["post"],
+    }),
+
+    deleteArticle: builder.mutation({
+      query: (id) => ({
+        url: `/posts/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["post"],
     }),
   }),
 });
@@ -30,5 +45,7 @@ export const posts = createApi({
 export const {
   useGetAllPostsQuery,
   useGetPostByIdQuery,
+  useGetPostsByCategoryIdQuery,
   useCreateArticleMutation,
+  useDeleteArticleMutation,
 } = posts;

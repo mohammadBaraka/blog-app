@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Loader } from "../Loader/Loader";
 export const TopCategories = () => {
   const { data, isLoading } = useGetAllCategoriesQuery();
+
   return (
     <>
       {isLoading ? <Loader /> : null}
