@@ -83,17 +83,22 @@ export const login = async (req, res) => {
       { id: existingUser.id, name: existingUser.name },
       process.env.SECRET_KEY
     );
-    res.setHeader(
-      "Set-Cookie",
-      serialize("accessToken", token, {
-        httpOnly: true,
-        sameSite: "none",
-        secure: process.env.NODE_ENV === "production",
-        path: "/",
-        maxAge: 60 * 60 * 24,
-      })
-    );
-
+    // res.setHeader(
+    //   "Set-Cookie",
+    //   serialize("accessToken", token, {
+    //     httpOnly: true,
+    //     sameSite: "none",
+    //     secure: process.env.NODE_ENV === "production",
+    //     path: "/",
+    //     maxAge: 60 * 60 * 24,
+    //   })
+    // );
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
     const response = {
       status: statusMessage.SUCCESS,
       message: "Login Successfully!",
@@ -111,17 +116,11 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
   try {
-    res.setHeader(
-      "Set-Cookie",
-      serialize("accessToken", "", {
-        httpOnly: true,
-        sameSite: "none",
-        secure: process.env.NODE_ENV === "production",
-        path: "/",
-        maxAge: -1,
-      })
-    );
-
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+    });
     res
       .status(200)
       .json({ status: statusMessage.SUCCESS, message: "Logout Successfully!" });

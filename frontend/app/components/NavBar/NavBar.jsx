@@ -24,12 +24,15 @@ export default function NavBarMenu() {
   const router = useRouter();
   const [logout, { data: logutData, isError, isLoading: logoutLoading }] =
     useLogoutMutation();
+
   const {
     data,
     isError: errorToken,
     isSuccess,
     isLoading,
   } = useSendTokenQuery();
+  console.log(data);
+
   const handleLogout = async () => {
     await logout();
     router.push("/auth/login");

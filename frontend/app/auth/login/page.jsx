@@ -12,8 +12,8 @@ export default function Login() {
   const router = useRouter();
   const [login, { isError, error, isLoading }] = useLoginMutation();
   const { register, handleSubmit } = useForm();
-  const onSubmit = async (data) => {
-    await login(data).then((res) =>
+  const onSubmit = (data) => {
+    login(data).then((res) =>
       res?.error?.status > 201
         ? msgError(res?.error?.data?.message)
         : msgSuccess(res?.data?.message)
